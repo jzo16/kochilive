@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>KochiLive</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+:root {
+  --red: #E53935; --red2: #C62828; --text: #1a1a1a; --sub: #888; --sub2: #bbb;
+  --bg: #F5F5F5; --white: #fff; --border: #EBEBEB; --gold: #F5A623;
+}
+body { font-family:'Lato',sans-serif; background:#ddd; display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
+
+.phone {
+  width:390px; height:844px; background:var(--white); border-radius:50px;
+  box-shadow:0 40px 120px rgba(0,0,0,0.35),0 0 0 10px #1a1a1a,0 0 0 12px #333;
+  overflow:hidden; position:relative; display:flex; flex-direction:column;
+}
+.status-bar { background:var(--white); padding:14px 24px 8px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; z-index:10; }
+.status-time { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; }
+.status-icons { font-size:12px; color:var(--text); }
+
+.screen { display:none; flex-direction:column; flex:1; overflow:hidden; background:var(--bg); animation:fadeIn 0.22s ease; }
+.screen.active { display:flex; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.scroll-area { flex:1; overflow-y:auto; scrollbar-width:none; }
+.scroll-area::-webkit-scrollbar { display:none; }
+
+/* TOP BAR */
+.top-bar { background:var(--white); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; border-bottom:1px solid var(--border); }
+.logo { font-family:'Nunito',sans-serif; font-weight:900; font-size:22px; color:var(--text); }
+.logo span { color:var(--red); }
+.icon-btn { width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:transparent; border:none; cursor:pointer; font-size:18px; color:var(--text); position:relative; }
+.badge { position:absolute; top:-2px; right:-2px; background:var(--red); color:#fff; font-size:9px; font-weight:700; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+
+/* BOTTOM NAV */
+.bottom-nav { background:var(--white); border-top:1px solid var(--border); display:flex; flex-shrink:0; padding:8px 0 18px; }
+.bnav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; padding:4px 0; }
+.bnav-icon { font-size:20px; color:#aaa; }
+.bnav-label { font-size:10px; color:#aaa; font-weight:600; }
+.bnav-item.active .bnav-icon, .bnav-item.active .bnav-label { color:var(--red); }
+.bnav-golive { width:44px; height:44px; border-radius:50%; background:var(--red); display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:2px; box-shadow:0 4px 12px rgba(229,57,53,0.4); color:#fff; }
+
+/* SECTIONS */
+.sec-header { display:flex; align-items:center; justify-content:space-between; padding:18px 20px 10px; }
+.sec-header h3 { font-family:'Nunito',sans-serif; font-weight:800; font-size:17px; color:var(--text); }
+.see-all { font-size:13px; color:var(--sub); font-weight:600; cursor:pointer; }
+
+/* HOME - live cards */
+.live-row { display:flex; gap:12px; padding:0 20px 4px; overflow-x:auto; scrollbar-width:none; }
+.live-row::-webkit-scrollbar { display:none; }
+.live-card { flex-shrink:0; width:175px; border-radius:16px; overflow:hidden; background:var(--white); box-shadow:0 2px 12px rgba(0,0,0,0.08); cursor:pointer; transition:transform 0.18s; }
+.live-card:hover { transform:scale(1.02); }
+.lc-thumb { height:130px; position:relative; background:linear-gradient(160deg,#2d1010,#1a0a0a); display:flex; align-items:center; justify-content:center; font-size:52px; }
+.lc-thumb2 { background:linear-gradient(160deg,#0a1020,#101828); }
+.lc-thumb3 { background:linear-gradient(160deg,#0a1a08,#061208); }
+.live-pill { position:absolute; top:8px; left:8px; background:var(--red); color:#fff; font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; letter-spacing:0.05em; }
+.viewer-txt { position:absolute; bottom:8px; left:8px; color:#fff; font-size:12px; font-weight:700; text-shadow:0 1px 4px rgba(0,0,0,0.5); }
+.lc-info { padding:10px 12px 12px; }
+.lc-name { font-size:13px; font-weight:700; color:var(--text); }
+
+/* HOME - products */
+.prods-row { display:flex; gap:10px; padding:0 20px 4px; overflow-x:auto; scrollbar-width:none; }
+.prods-row::-webkit-scrollbar { display:none; }
+.pc { flex-shrink:0; width:125px; border-radius:14px; overflow:hidden; background:var(--white); box-shadow:0 2px 8px rgba(0,0,0,0.07); cursor:pointer; transition:transform 0.15s; }
+.pc:hover { transform:translateY(-2px); }
+.pc-thumb { height:105px; background:#f8f5f0; display:flex; align-items:center; justify-content:center; font-size:38px; }
+.pc-info { padding:8px 10px 10px; }
+.pc-price { font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; color:var(--text); }
+.pc-name { font-size:12px; color:var(--sub); margin-top:1px; }
+
+/* HOME - stores */
+.stores-row { display:flex; gap:12px; padding:0 20px 20px; overflow-x:auto; scrollbar-width:none; }
+.stores-row::-webkit-scrollbar { display:none; }
+.sc { flex-shrink:0; width:155px; border-radius:14px; overflow:hidden; background:var(--white); box-shadow:0 2px 8px rgba(0,0,0,0.08); cursor:pointer; transition:transform 0.15s; }
+.sc:hover { transform:translateY(-2px); }
+.sc-thumb { height:95px; background:linear-gradient(135deg,#f0e8d8,#e8d8c0); display:flex; align-items:center; justify-content:center; font-size:34px; }
+.sc-name { font-size:13px; font-weight:700; color:var(--text); padding:8px 10px; }
+
+/* DISCOVER */
+.search-bar { display:flex; align-items:center; gap:10px; padding:10px 20px; background:var(--white); }
+.search-input { flex:1; display:flex; align-items:center; gap:8px; background:#F0F0F0; border-radius:12px; padding:10px 14px; }
+.search-input span { font-size:14px; color:var(--sub); }
+.filter-btn { display:flex; align-items:center; gap:5px; background:var(--white); border:1.5px solid var(--border); border-radius:12px; padding:9px 13px; cursor:pointer; font-size:13px; font-weight:600; color:var(--text); white-space:nowrap; }
+.view-toggle { display:flex; margin:10px 20px; background:var(--white); border-radius:12px; padding:4px; box-shadow:0 1px 4px rgba(0,0,0,0.08); }
+.vt-btn { flex:1; padding:8px; border-radius:9px; border:none; font-size:13px; font-weight:700; cursor:pointer; font-family:'Lato',sans-serif; }
+.vt-btn.on { background:var(--red); color:#fff; }
+.vt-btn:not(.on) { background:transparent; color:var(--sub); }
+
+.map-wrap { margin:0 20px 10px; border-radius:16px; overflow:hidden; height:198px; position:relative; background:#d4e8d4; box-shadow:0 2px 12px rgba(0,0,0,0.1); }
+.map-svg { width:100%; height:100%; }
+.map-pin { position:absolute; cursor:pointer; transform:translate(-50%,-100%); font-size:28px; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transition:transform 0.2s; }
+.map-pin:hover { transform:translate(-50%,-100%) scale(1.2); }
+.map-me { position:absolute; left:50%; top:52%; transform:translate(-50%,-50%); }
+.map-loc { position:absolute; bottom:10px; right:10px; width:34px; height:34px; background:var(--white); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; box-shadow:0 2px 8px rgba(0,0,0,0.15); cursor:pointer; }
+
+.shop-list { padding:0 20px; }
+.shop-row { display:flex; align-items:center; gap:12px; padding:14px 0; border-bottom:1px solid var(--border); cursor:pointer; }
+.shop-row:last-child { border-bottom:none; }
+.sr-thumb { width:64px; height:64px; border-radius:12px; flex-shrink:0; background:#f0e8d8; display:flex; align-items:center; justify-content:center; font-size:28px; }
+.sr-info { flex:1; }
+.sr-name { font-size:16px; font-weight:700; color:var(--text); margin-bottom:3px; }
+.sr-dist { font-size:13px; color:var(--sub); }
+.sr-right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+.live-now-badge { background:var(--red); color:#fff; font-size:10px; font-weight:800; padding:3px 10px; border-radius:8px; }
+.heart { font-size:18px; color:#ddd; cursor:pointer; }
+.heart.on { color:var(--red); }
+
+/* SHOP PROFILE */
+.shop-cover { height:155px; background:linear-gradient(160deg,#e8d8b8,#c8a870); position:relative; overflow:hidden; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:55px; }
+.back-btn { position:absolute; top:12px; left:14px; width:32px; height:32px; background:rgba(255,255,255,0.9); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; z-index:2; }
+.shop-actions { position:absolute; top:12px; right:14px; display:flex; gap:8px; }
+.sab { width:32px; height:32px; background:rgba(255,255,255,0.9); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer; }
+.shop-av-wrap { display:flex; justify-content:center; margin-top:-30px; flex-shrink:0; z-index:2; position:relative; }
+.shop-av { width:64px; height:64px; border-radius:50%; background:var(--white); border:3px solid var(--white); display:flex; align-items:center; justify-content:center; font-size:28px; box-shadow:0 4px 16px rgba(0,0,0,0.12); }
+.shop-meta { text-align:center; padding:10px 20px 0; flex-shrink:0; }
+.shop-meta h2 { font-family:'Nunito',sans-serif; font-weight:900; font-size:20px; }
+.shop-stars { color:var(--gold); font-size:14px; }
+.shop-foll { font-weight:700; font-size:13px; }
+.shop-desc-t { font-size:13px; color:var(--sub); margin-top:3px; }
+.shop-loc { font-size:12px; color:var(--sub); margin-top:2px; }
+
+.live-banner { margin:14px 20px; border-radius:14px; overflow:hidden; background:var(--white); box-shadow:0 2px 12px rgba(0,0,0,0.08); display:flex; flex-shrink:0; cursor:pointer; }
+.lb-vid { width:128px; height:88px; flex-shrink:0; background:linear-gradient(135deg,#2d1010,#1a0505); display:flex; align-items:center; justify-content:center; font-size:34px; position:relative; }
+.lb-info { flex:1; padding:10px 13px; display:flex; flex-direction:column; justify-content:space-between; }
+.lb-dots { display:flex; gap:4px; justify-content:flex-end; }
+.lb-dot { width:6px; height:6px; border-radius:50%; background:var(--sub2); }
+.lb-dot.on { background:var(--red); }
+.lb-title { font-size:14px; font-weight:700; color:var(--text); margin-top:2px; }
+.lb-price { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; }
+.lb-bot { display:flex; align-items:center; justify-content:space-between; }
+.lb-timer { font-size:12px; color:var(--sub); }
+.buy-sm { background:var(--red); color:#fff; border:none; border-radius:8px; padding:7px 13px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:3px; font-family:'Lato',sans-serif; }
+
+.tabs { display:flex; border-bottom:1.5px solid var(--border); margin:0 20px; flex-shrink:0; }
+.tab { flex:1; text-align:center; padding:10px; font-size:14px; font-weight:700; color:var(--sub); cursor:pointer; border-bottom:2.5px solid transparent; }
+.tab.on { color:var(--text); border-bottom-color:var(--text); }
+
+.chips { display:flex; gap:8px; padding:10px 20px; overflow-x:auto; scrollbar-width:none; flex-shrink:0; }
+.chips::-webkit-scrollbar { display:none; }
+.chip { flex-shrink:0; padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); font-size:13px; font-weight:600; cursor:pointer; background:var(--white); color:var(--text); }
+.chip.on { background:var(--text); color:var(--white); border-color:var(--text); }
+
+.pgrid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; padding:8px 20px 20px; }
+.pgc { background:var(--white); border-radius:12px; overflow:hidden; cursor:pointer; box-shadow:0 1px 6px rgba(0,0,0,0.06); transition:transform 0.15s; }
+.pgc:hover { transform:translateY(-2px); }
+.pgc-thumb { height:88px; background:#f8f4ef; display:flex; align-items:center; justify-content:center; font-size:28px; position:relative; }
+.pgc-heart { position:absolute; top:5px; right:6px; font-size:14px; color:#ddd; cursor:pointer; }
+.pgc-heart.on { color:var(--red); }
+.pgc-info { padding:6px 8px 8px; }
+.pgc-name { font-size:11px; color:var(--text); font-weight:600; line-height:1.2; margin-bottom:3px; }
+.pgc-bot { display:flex; justify-content:space-between; align-items:center; }
+.pgc-price { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; }
+.pgc-cart { font-size:12px; color:var(--sub); cursor:pointer; }
+
+/* STREAM SCREEN */
+.stream-wrap { position:relative; background:#0a0a0a; flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.stream-bg { position:absolute; inset:0; background:linear-gradient(180deg,#3d1515 0%,#1a0808 40%,#0a1a0a 100%); display:flex; align-items:center; justify-content:center; font-size:90px; z-index:0; }
+.stream-layer { position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,0.3) 0%,transparent 25%,transparent 55%,rgba(0,0,0,0.75) 100%); z-index:1; }
+.stream-ui { position:absolute; inset:0; z-index:2; display:flex; flex-direction:column; }
+
+.stream-top { display:flex; align-items:center; justify-content:space-between; padding:16px 16px 8px; }
+.s-live { background:var(--red); color:#fff; font-size:12px; font-weight:800; padding:4px 10px; border-radius:8px; }
+.s-viewers { background:rgba(0,0,0,0.5); color:#fff; font-size:12px; font-weight:600; padding:4px 10px; border-radius:20px; margin-left:8px; }
+.s-cart { background:rgba(0,0,0,0.5); color:#fff; font-size:12px; font-weight:700; padding:6px 12px; border-radius:20px; cursor:pointer; }
+.s-title { padding:0 16px 8px; color:#fff; font-size:18px; font-weight:800; text-shadow:0 1px 4px rgba(0,0,0,0.5); }
+
+.hearts { position:absolute; right:16px; bottom:220px; z-index:3; pointer-events:none; }
+.heart-anim { font-size:20px; animation:floatUp 2s ease-out infinite; opacity:0; }
+.heart-anim:nth-child(1){animation-delay:0s} .heart-anim:nth-child(2){animation-delay:0.5s} .heart-anim:nth-child(3){animation-delay:1s} .heart-anim:nth-child(4){animation-delay:1.5s}
+@keyframes floatUp { 0%{opacity:0;transform:translateY(0) scale(0.5)} 20%{opacity:1;transform:translateY(-10px) scale(1)} 100%{opacity:0;transform:translateY(-70px) scale(0.7)} }
+
+.prods-overlay { background:rgba(255,255,255,0.14); backdrop-filter:blur(14px); margin:0 14px 8px; border-radius:16px; overflow:hidden; }
+.po-head { display:flex; align-items:center; justify-content:space-between; padding:10px 14px 6px; }
+.po-title { color:#fff; font-size:13px; font-weight:700; }
+.po-viewall { color:rgba(255,255,255,0.8); font-size:12px; cursor:pointer; }
+.spr { display:flex; align-items:center; justify-content:space-between; padding:9px 14px; background:rgba(255,255,255,0.92); margin-bottom:1px; cursor:pointer; }
+.spr:last-child { margin-bottom:0; }
+.spr-l { display:flex; align-items:center; gap:10px; }
+.spr-ico { width:36px; height:36px; border-radius:8px; background:#f8f4ef; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.spr-n { font-size:13px; font-weight:700; color:var(--text); }
+.spr-p { font-family:'Nunito',sans-serif; font-size:13px; font-weight:800; color:var(--text); }
+.spr-buy { background:var(--red); color:#fff; border:none; border-radius:8px; padding:7px 13px; font-size:12px; font-weight:700; cursor:pointer; font-family:'Lato',sans-serif; white-space:nowrap; }
+.spr-buy.grey { background:#999; }
+
+.feat-btn { display:flex; align-items:center; justify-content:center; gap:6px; background:var(--red); color:#fff; margin:0 14px 8px; border-radius:25px; padding:9px; font-size:13px; font-weight:700; cursor:pointer; }
+
+.s-chat { padding:0 14px; display:flex; flex-direction:column; gap:5px; flex-shrink:0; }
+.s-msg { display:flex; align-items:center; gap:8px; }
+.s-av { width:28px; height:28px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; }
+.s-bubble { background:rgba(0,0,0,0.42); border-radius:12px; padding:5px 10px; }
+.s-user { font-size:11px; font-weight:800; color:#fff; }
+.s-text { font-size:12px; color:rgba(255,255,255,0.9); }
+
+.buy-pinned { margin:8px 14px; background:var(--white); border-radius:14px; display:flex; align-items:center; justify-content:space-between; padding:10px 12px; box-shadow:0 4px 16px rgba(0,0,0,0.2); }
+.bp-l { display:flex; align-items:center; gap:10px; }
+.bp-ico { width:40px; height:40px; border-radius:10px; background:#f8f4ef; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.bp-name { font-size:13px; font-weight:700; color:var(--text); }
+.bp-price { font-family:'Nunito',sans-serif; font-size:15px; font-weight:800; color:var(--text); }
+.bp-buy { background:var(--red); color:#fff; border:none; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:700; cursor:pointer; font-family:'Lato',sans-serif; }
+
+.s-bottom { display:flex; align-items:center; gap:8px; padding:8px 14px 22px; background:rgba(0,0,0,0.55); }
+.s-cart-c { background:rgba(255,255,255,0.15); border:1.5px solid rgba(255,255,255,0.3); color:#fff; border-radius:10px; padding:9px 11px; font-size:13px; font-weight:700; display:flex; align-items:center; gap:4px; flex-shrink:0; }
+.s-inp { flex:1; background:rgba(255,255,255,0.15); border:1.5px solid rgba(255,255,255,0.25); border-radius:10px; padding:9px 13px; color:#fff; font-size:13px; outline:none; font-family:'Lato',sans-serif; }
+.s-inp::placeholder { color:rgba(255,255,255,0.55); }
+.s-emoji { font-size:20px; cursor:pointer; }
+.s-end { background:rgba(255,255,255,0.15); border:1.5px solid rgba(255,255,255,0.3); color:#fff; border-radius:10px; padding:9px 13px; font-size:13px; font-weight:700; cursor:pointer; font-family:'Lato',sans-serif; flex-shrink:0; }
+
+/* TOAST */
+.toast { position:absolute; bottom:86px; left:50%; transform:translateX(-50%) translateY(14px); background:rgba(0,0,0,0.78); color:#fff; padding:10px 20px; border-radius:20px; font-size:13px; font-weight:600; opacity:0; transition:all 0.22s; z-index:999; white-space:nowrap; pointer-events:none; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <div class="status-bar" id="status-bar">
+    <div class="status-time">9:41</div>
+    <div class="status-icons">▮▮▮▮ ≋ 🔋</div>
+  </div>
+
+  <!-- ========== HOME ========== -->
+  <div id="home" class="screen active">
+    <div class="top-bar">
+      <button class="icon-btn">☰</button>
+      <div class="logo">Kochi<span>Live</span></div>
+      <div style="display:flex;gap:2px">
+        <button class="icon-btn">🛒</button>
+        <button class="icon-btn">🔔<div class="badge">3</div></button>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <div class="sec-header"><h3>Featured Livestreams</h3><span class="see-all">See All ›</span></div>
+      <div class="live-row">
+        <div class="live-card" onclick="go('stream')">
+          <div class="lc-thumb">👗<div class="live-pill">LIVE</div><div class="viewer-txt">1.2K Viewers</div></div>
+          <div class="lc-info"><div class="lc-name">Fashion Sale</div></div>
+        </div>
+        <div class="live-card" onclick="go('stream')">
+          <div class="lc-thumb lc-thumb2">🎧<div class="live-pill">LIVE</div><div class="viewer-txt">820 Viewers</div></div>
+          <div class="lc-info"><div class="lc-name">Gadgets Showcase</div></div>
+        </div>
+        <div class="live-card" onclick="go('stream')">
+          <div class="lc-thumb lc-thumb3">🌶<div class="live-pill">LIVE</div><div class="viewer-txt">440 Viewers</div></div>
+          <div class="lc-info"><div class="lc-name">Spice Villa Live</div></div>
+        </div>
+      </div>
+      <div class="sec-header"><h3>Trending Products</h3><span class="see-all">See All ›</span></div>
+      <div class="prods-row">
+        <div class="pc" onclick="toast('Added to cart!')"><div class="pc-thumb">🎒</div><div class="pc-info"><div class="pc-price">LED, 39/<br>LED Backpack</div></div></div>
+        <div class="pc" onclick="toast('Added to cart!')"><div class="pc-thumb">👟</div><div class="pc-info"><div class="pc-price">₹6,499</div><div class="pc-name">New Sneakers</div></div></div>
+        <div class="pc" onclick="toast('Added to cart!')"><div class="pc-thumb">⌚</div><div class="pc-info"><div class="pc-price">₹10,999</div><div class="pc-name">Gold Watch</div></div></div>
+        <div class="pc" onclick="toast('Added to cart!')"><div class="pc-thumb">🥻</div><div class="pc-info"><div class="pc-price">₹2,200</div><div class="pc-name">Kasavu Saree</div></div></div>
+      </div>
+      <div class="sec-header"><h3>Popular Stores Near You</h3><span class="see-all">See All ›</span></div>
+      <div class="stores-row">
+        <div class="sc" onclick="go('shop')"><div class="sc-thumb">🏪</div><div class="sc-name">City Bazaar</div></div>
+        <div class="sc" onclick="go('shop')"><div class="sc-thumb">👗</div><div class="sc-name">Trendy Hub</div></div>
+        <div class="sc" onclick="go('discover')"><div class="sc-thumb">🌶</div><div class="sc-name">Spice Villa</div></div>
+        <div class="sc" onclick="go('discover')"><div class="sc-thumb">💻</div><div class="sc-name">Tech Zone</div></div>
+      </div>
+      <div style="height:16px"></div>
+    </div>
+    <div class="bottom-nav">
+      <div class="bnav-item active"><div class="bnav-icon">🏠</div><div class="bnav-label">Home</div></div>
+      <div class="bnav-item" onclick="go('stream')"><div class="bnav-golive">▶</div><div class="bnav-label" style="color:var(--red)">Go Live</div></div>
+      <div class="bnav-item" onclick="go('discover')"><div class="bnav-icon">⊞</div><div class="bnav-label">Discover Shops</div></div>
+      <div class="bnav-item"><div class="bnav-icon">👤</div><div class="bnav-label">Account</div></div>
+    </div>
+  </div>
+
+  <!-- ========== DISCOVER ========== -->
+  <div id="discover" class="screen">
+    <div class="top-bar">
+      <button class="icon-btn">☰</button>
+      <div class="logo">Kochi<span>Live</span></div>
+      <button class="icon-btn">🔍</button>
+    </div>
+    <div class="scroll-area">
+      <div class="search-bar">
+        <div class="search-input"><span>🔍</span><span>Search shops...</span></div>
+        <div class="filter-btn">⊕ Filter</div>
+      </div>
+      <div class="view-toggle">
+        <button class="vt-btn on">Map View</button>
+        <button class="vt-btn">List View</button>
+      </div>
+      <div class="map-wrap">
+        <svg class="map-svg" viewBox="0 0 350 200" xmlns="http://www.w3.org/2000/svg">
+          <rect width="350" height="200" fill="#d8e8d4"/>
+          <path d="M120 0 L155 35 L140 80 L158 125 L138 165 L155 200 L115 200 L98 160 L118 118 L98 75 L115 35Z" fill="#a8d4f5" opacity="0.75"/>
+          <path d="M215 55 L258 75 L278 118 L255 158 L215 138 L198 98Z" fill="#a8d4f5" opacity="0.5"/>
+          <line x1="0" y1="38" x2="350" y2="38" stroke="#fff" stroke-width="3"/>
+          <line x1="0" y1="98" x2="350" y2="98" stroke="#fff" stroke-width="2"/>
+          <line x1="0" y1="158" x2="350" y2="158" stroke="#fff" stroke-width="2"/>
+          <line x1="78" y1="0" x2="78" y2="200" stroke="#fff" stroke-width="2"/>
+          <line x1="198" y1="0" x2="198" y2="200" stroke="#fff" stroke-width="3"/>
+          <line x1="298" y1="0" x2="298" y2="200" stroke="#fff" stroke-width="2"/>
+          <rect x="18" y="48" width="38" height="28" rx="4" fill="#8bc34a" opacity="0.4"/>
+          <rect x="238" y="108" width="28" height="22" rx="4" fill="#8bc34a" opacity="0.4"/>
+          <circle cx="175" cy="105" r="9" fill="#4285F4" opacity="0.25"/>
+          <circle cx="175" cy="105" r="5" fill="#4285F4"/>
+          <circle cx="175" cy="105" r="2.5" fill="#fff"/>
+          <text x="152" y="128" font-size="11" font-weight="700" fill="#555">Kochi</text>
+        </svg>
+        <div class="map-pin" style="left:26%;top:28%" onclick="go('shop')">📍</div>
+        <div class="map-pin" style="left:72%;top:20%" onclick="go('shop')">📍</div>
+        <div class="map-pin" style="left:60%;top:46%" onclick="go('shop')">📍</div>
+        <div class="map-pin" style="left:83%;top:64%" onclick="go('shop')">📍</div>
+        <div class="map-pin" style="left:28%;top:72%" onclick="go('shop')">📍</div>
+        <div class="map-loc">↗</div>
+      </div>
+      <div class="shop-list">
+        <div class="shop-row" onclick="go('shop')">
+          <div class="sr-thumb">🛍</div>
+          <div class="sr-info"><div class="sr-name">Fashion Hub</div><div class="sr-dist">0.4 km</div></div>
+          <div class="sr-right"><div class="live-now-badge">LIVE NOW</div><div class="heart">♡</div></div>
+        </div>
+        <div class="shop-row" onclick="go('shop')">
+          <div class="sr-thumb">💻</div>
+          <div class="sr-info"><div class="sr-name">Tech Zone</div><div class="sr-dist">0.9 km</div></div>
+          <div class="sr-right"><div class="heart">♡</div></div>
+        </div>
+        <div class="shop-row" onclick="go('shop')">
+          <div class="sr-thumb">🌶</div>
+          <div class="sr-info"><div class="sr-name">Spice Villa</div><div class="sr-dist">0.6 km</div></div>
+          <div class="sr-right"><div class="heart on">♥</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="bnav-item" onclick="go('home')"><div class="bnav-icon">🏠</div><div class="bnav-label">Home</div></div>
+      <div class="bnav-item" onclick="go('stream')"><div class="bnav-golive">▶</div><div class="bnav-label" style="color:var(--red)">Go Live</div></div>
+      <div class="bnav-item active"><div class="bnav-icon">⊞</div><div class="bnav-label">Discover Shops</div></div>
+      <div class="bnav-item"><div class="bnav-icon">👤</div><div class="bnav-label">Account</div></div>
+    </div>
+  </div>
+
+  <!-- ========== SHOP ========== -->
+  <div id="shop" class="screen">
+    <div style="position:relative;flex-shrink:0">
+      <div class="shop-cover">
+        <div style="font-size:55px">🏪</div>
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(180,140,80,0.35),rgba(100,70,30,0.2))"></div>
+        <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-weight:900;font-size:12px;color:rgba(255,255,255,0.88);letter-spacing:0.12em;text-transform:uppercase">City Bazaar</div>
+      </div>
+      <div class="back-btn" onclick="go('home')">‹</div>
+      <div class="shop-actions"><div class="sab">♡</div><div class="sab">📍</div></div>
+    </div>
+    <div class="scroll-area">
+      <div class="shop-av-wrap"><div class="shop-av">🛍</div></div>
+      <div class="shop-meta">
+        <h2>City Bazaar</h2>
+        <div style="margin:4px 0 2px"><span class="shop-stars">★★★★</span><span style="color:#ddd;font-size:14px">★</span> <span class="shop-foll">1.2K Followers</span></div>
+        <div class="shop-desc-t">Fashion &amp; Accessories · Open · Closes 9 PM ♡</div>
+        <div class="shop-loc">📍 MG Road, Kochi, Kerala</div>
+      </div>
+      <div class="live-banner" onclick="go('stream')">
+        <div class="lb-vid">
+          <span>👗</span>
+          <div class="live-pill">LIVE NOW</div>
+          <div class="viewer-txt" style="font-size:11px">👤 1,200 Viewers</div>
+        </div>
+        <div class="lb-info">
+          <div class="lb-dots"><div class="lb-dot on"></div><div class="lb-dot"></div><div class="lb-dot"></div><span style="font-size:13px;color:var(--sub);margin-left:3px">›</span></div>
+          <div class="lb-title">Red Summer Dress</div>
+          <div class="lb-price">₹3,750</div>
+          <div class="lb-bot">
+            <div class="lb-timer">⏱ 0:28</div>
+            <button class="buy-sm" onclick="event.stopPropagation();toast('Added to cart!')">+ Buy</button>
+          </div>
+        </div>
+      </div>
+      <div class="tabs">
+        <div class="tab on">Products</div>
+        <div class="tab">Reviews (582)</div>
+        <div class="tab" style="flex:0;padding:10px 8px">›</div>
+      </div>
+      <div class="chips">
+        <div class="chip on">All</div>
+        <div class="chip">Dresses</div>
+        <div class="chip">Handbags</div>
+        <div class="chip">Shoes</div>
+        <div class="chip">New ⌄</div>
+      </div>
+      <div class="pgrid">
+        <div class="pgc" onclick="toast('Added to cart!')"><div class="pgc-thumb">👗<div class="pgc-heart on">♥</div></div><div class="pgc-info"><div class="pgc-name">Red Summer Dress</div><div class="pgc-bot"><div class="pgc-price">₹3,750</div><div class="pgc-cart">🛒</div></div></div></div>
+        <div class="pgc" onclick="toast('Added to cart!')"><div class="pgc-thumb">👜<div class="pgc-heart">♡</div></div><div class="pgc-info"><div class="pgc-name">Leather Tote Bag</div><div class="pgc-bot"><div class="pgc-price">₹5,400</div><div class="pgc-cart">🛒</div></div></div></div>
+        <div class="pgc" onclick="toast('Added to cart!')"><div class="pgc-thumb">👟<div class="pgc-heart">♡</div></div><div class="pgc-info"><div class="pgc-name">White Sneakers</div><div class="pgc-bot"><div class="pgc-price">₹6,499</div><div class="pgc-cart">🛒</div></div></div></div>
+        <div class="pgc" onclick="toast('Added to cart!')"><div class="pgc-thumb">⌚<div class="pgc-heart">♡</div></div><div class="pgc-info"><div class="pgc-name">Gold Watch</div><div class="pgc-bot"><div class="pgc-price">₹10,999</div><div class="pgc-cart">🛒</div></div></div></div>
+        <div class="pgc" onclick="toast('Added to cart!')"><div class="pgc-thumb">🥻<div class="pgc-heart">♡</div></div><div class="pgc-info"><div class="pgc-name">Kasavu Saree</div><div class="pgc-bot"><div class="pgc-price">₹2,200</div><div class="pgc-cart">🛒</div></div></div></div>
+        <div class="pgc" onclick="toast('Added to cart!')"><div class="pgc-thumb">💍<div class="pgc-heart">♡</div></div><div class="pgc-info"><div class="pgc-name">Pearl Earrings</div><div class="pgc-bot"><div class="pgc-price">₹1,850</div><div class="pgc-cart">🛒</div></div></div></div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="bnav-item" onclick="go('home')"><div class="bnav-icon">🏠</div><div class="bnav-label">Home</div></div>
+      <div class="bnav-item" onclick="go('stream')"><div class="bnav-golive">▶</div><div class="bnav-label" style="color:var(--red)">Go Live</div></div>
+      <div class="bnav-item" onclick="go('discover')"><div class="bnav-icon">⊞</div><div class="bnav-label">Discover Shops</div></div>
+      <div class="bnav-item"><div class="bnav-icon">👤</div><div class="bnav-label">Account</div></div>
+    </div>
+  </div>
+
+  <!-- ========== STREAM ========== -->
+  <div id="stream" class="screen" style="background:#000;padding:0">
+    <div class="stream-wrap">
+      <div class="stream-bg">👗</div>
+      <div class="stream-layer"></div>
+      <div class="stream-ui">
+        <div>
+          <div class="stream-top">
+            <div style="display:flex;align-items:center">
+              <div class="s-live">LIVE</div>
+              <div class="s-viewers">👤 1,231</div>
+            </div>
+            <div class="s-cart" onclick="toast('Cart: 2 items')">🛒 2</div>
+          </div>
+          <div class="s-title">Fashion Sale Kochi</div>
+        </div>
+        <div style="flex:1"></div>
+        <div class="hearts">
+          <div class="heart-anim">❤️</div><div class="heart-anim">❤️</div>
+          <div class="heart-anim">❤️</div><div class="heart-anim">❤️</div>
+        </div>
+        <div class="prods-overlay">
+          <div class="po-head"><div class="po-title">🏷 Products</div><div class="po-viewall">View All ›</div></div>
+          <div class="spr" onclick="toast('Added: Red Summer Dress ✓')">
+            <div class="spr-l"><div class="spr-ico">👗</div><div><div class="spr-n">Red Summer Dress</div><div class="spr-p">₹3,750</div></div></div>
+            <button class="spr-buy" onclick="event.stopPropagation();toast('Added to cart!')">+ Buy</button>
+          </div>
+          <div class="spr" onclick="toast('Added: White Sneakers ✓')">
+            <div class="spr-l"><div class="spr-ico">👟</div><div><div class="spr-n">Stylish White Sneakers</div><div class="spr-p">₹6,499</div></div></div>
+            <button class="spr-buy grey" onclick="event.stopPropagation();toast('Added to cart!')">+ Buy</button>
+          </div>
+        </div>
+        <div class="feat-btn">📷 Tap to Feature</div>
+        <div class="s-chat" id="s-chat">
+          <div class="s-msg"><div class="s-av" style="background:#4CAF50">J</div><div class="s-bubble"><div class="s-user">John</div><div class="s-text">That red dress looks amazing! 😍</div></div></div>
+          <div class="s-msg"><div class="s-av" style="background:#FF9800">L</div><div class="s-bubble"><div class="s-user">Lisa</div><div class="s-text">Do you have this dress in blue?</div></div></div>
+          <div class="s-msg"><div class="s-av" style="background:#2196F3">R</div><div class="s-bubble"><div class="s-user">Rahul</div><div class="s-text">Are there any live discounts?</div></div></div>
+          <div class="s-msg"><div class="s-av" style="background:#9C27B0">P</div><div class="s-bubble"><div class="s-user">Priya</div><div class="s-text">Can I see the sneakers?</div></div></div>
+        </div>
+        <div class="buy-pinned">
+          <div class="bp-l"><div class="bp-ico">👗</div><div><div class="bp-name">Red Summer Dress</div><div class="bp-price">₹3,750</div></div></div>
+          <button class="bp-buy" onclick="toast('Order placed! 🎉')">Buy Now</button>
+        </div>
+        <div class="s-bottom">
+          <div class="s-cart-c">🛒 2</div>
+          <input class="s-inp" id="s-inp" placeholder="Add a comment..." onkeypress="sChat(event)">
+          <span class="s-emoji">🙂</span>
+          <span class="s-emoji">😄</span>
+          <button class="s-end" onclick="go('shop')">End</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('status-bar').style.display = id === 'stream' ? 'none' : 'flex';
+}
+
+function toast(m) {
+  const t = document.getElementById('toast');
+  t.textContent = m; t.classList.add('show');
+  clearTimeout(window._tt);
+  window._tt = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+const CN = ['Meera','Arjun','Divya','Ramesh','Leela','Suresh'];
+const CM = ['Love this! 😍','What sizes?','Best price!','Can I order 2?','Kochi best shop!','Ship to Thrissur?'];
+const CC = ['#E53935','#4CAF50','#2196F3','#FF9800','#9C27B0','#00BCD4'];
+let ci = 0;
+setInterval(() => {
+  const feed = document.getElementById('s-chat');
+  if (!feed) return;
+  const n = CN[ci%CN.length], m = CM[ci%CM.length], c = CC[ci%CC.length];
+  const el = document.createElement('div');
+  el.className = 's-msg';
+  el.innerHTML = `<div class="s-av" style="background:${c}">${n[0]}</div><div class="s-bubble"><div class="s-user">${n}</div><div class="s-text">${m}</div></div>`;
+  feed.appendChild(el);
+  while(feed.children.length > 4) feed.removeChild(feed.firstChild);
+  ci++;
+}, 3200);
+
+function sChat(e) {
+  if (e.key !== 'Enter') return;
+  const inp = document.getElementById('s-inp');
+  const v = inp.value.trim(); if (!v) return;
+  const feed = document.getElementById('s-chat');
+  const el = document.createElement('div');
+  el.className = 's-msg';
+  el.innerHTML = `<div class="s-av" style="background:#E53935">Y</div><div class="s-bubble"><div class="s-user" style="color:#FF9800">You</div><div class="s-text">${v}</div></div>`;
+  feed.appendChild(el);
+  while(feed.children.length > 4) feed.removeChild(feed.firstChild);
+  inp.value = '';
+}
+</script>
+</body>
+</html>
