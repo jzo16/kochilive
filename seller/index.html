@@ -1,1 +1,467 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>KochiLive Seller</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --indigo:#3D35C8;--indigo2:#2E28A0;--indigo-bg:#EEF0FF;
+  --red:#E8445A;--green:#22C55E;--orange:#F59E0B;
+  --text:#111;--sub:#6B7280;--sub2:#9CA3AF;
+  --bg:#F4F5FA;--white:#fff;--border:#E5E7EB;
+}
+body{font-family:'DM Sans',sans-serif;background:#c8c8d4;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+
+/* ── PHONE SHELL ── */
+.phone{
+  width:375px;height:812px;background:var(--bg);border-radius:46px;
+  box-shadow:0 40px 100px rgba(0,0,0,.32),0 0 0 9px #1c1c1c,0 0 0 11px #2e2e2e;
+  overflow:hidden;display:flex;flex-direction:column;flex-shrink:0;position:relative;
+}
+
+/* ── STATUS BAR ── */
+.sb{background:var(--white);padding:12px 22px 8px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sb-time{font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;color:var(--text)}
+
+/* ── PERSISTENT TOP BAR ── */
+.top-bar{
+  background:var(--white);padding:13px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;border-bottom:1px solid var(--border);
+}
+.logo-row{display:flex;align-items:center;gap:10px}
+.logo-ic{width:34px;height:34px;border-radius:50%;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-txt{font-family:'Nunito',sans-serif;font-weight:900;font-size:19px;color:var(--indigo)}
+.top-right{display:flex;align-items:center;gap:8px}
+.bell{font-size:20px;color:var(--sub);cursor:pointer}
+
+/* sub-header for inner pages (back btn + title) */
+.sub-bar{
+  background:var(--white);padding:12px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;border-bottom:1px solid var(--border);
+}
+.back-dashed{width:34px;height:34px;border-radius:50%;border:2px dashed var(--indigo);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--indigo)}
+.sub-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:var(--text)}
+.help-ic{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--sub);cursor:pointer}
+
+/* ── CONTENT WRAPPER ── */
+.content{flex:1;overflow:hidden;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;display:none;flex-direction:column}
+.page::-webkit-scrollbar{display:none}
+.page.active{display:flex;animation:fi .22s ease}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── PERSISTENT BOTTOM NAV ── */
+.bottom-nav{
+  background:var(--white);border-top:1px solid var(--border);
+  display:flex;flex-shrink:0;padding:8px 0 18px;
+}
+.bnav{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;transition:opacity .15s}
+.bnav-ic{font-size:20px;color:#bbb}
+.bnav-lbl{font-size:10px;color:#bbb;font-weight:600;font-family:'DM Sans',sans-serif}
+.bnav.active .bnav-ic,.bnav.active .bnav-lbl{color:var(--indigo)}
+.go-live-fab{width:46px;height:46px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;margin-bottom:2px;box-shadow:0 4px 14px rgba(232,68,90,.4)}
+
+/* ── SHARED COMPONENTS ── */
+.indigo-card{background:var(--indigo);border-radius:16px;padding:22px 20px;position:relative;overflow:hidden;margin:0 18px}
+.ic-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.65);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+.ic-amount{font-family:'Nunito',sans-serif;font-weight:900;font-size:34px;color:#fff;letter-spacing:-.02em}
+.ic-rupee-bg{position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:88px;opacity:.12;color:#fff;pointer-events:none}
+.growth-pill{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.18);color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;margin-left:12px}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 18px}
+.stat-card{background:var(--white);border-radius:14px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.stat-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:8px}
+.si-purple{background:#EEF0FF} .si-orange{background:#FFF7ED}
+.stat-lbl{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;line-height:1.3}
+.stat-num{font-family:'Nunito',sans-serif;font-weight:900;font-size:26px;color:var(--text)}
+
+.sec-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 10px}
+.sec-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:var(--text)}
+.view-all{font-size:13px;color:var(--indigo);font-weight:600;cursor:pointer}
+
+/* ── DASHBOARD ── */
+.seller-card{background:var(--white);border-radius:14px;padding:14px 16px;margin:14px 18px 0;display:flex;align-items:center;gap:12px;box-shadow:0 1px 6px rgba(0,0,0,.07)}
+.seller-logo{width:52px;height:52px;border-radius:10px;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.seller-name{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:var(--text)}
+.verified{color:#22C55E;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px;margin-top:3px}
+.qs-label{padding:16px 18px 10px;font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:var(--text)}
+
+.live-soon-card{margin:14px 18px 0;border-radius:16px;overflow:hidden;background:var(--white);box-shadow:0 2px 12px rgba(0,0,0,.09)}
+.ls-banner{height:150px;background:linear-gradient(135deg,#3d1a00,#5c2a00,#2a1500);position:relative;display:flex;align-items:center;justify-content:center;font-size:72px;overflow:hidden}
+.ls-badge-row{position:absolute;bottom:12px;left:12px;z-index:2;display:flex;align-items:center;gap:8px}
+.ls-pill{background:var(--red);color:#fff;font-size:10px;font-weight:800;padding:4px 10px;border-radius:6px;display:flex;align-items:center;gap:4px}
+.ls-dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.ls-starts{color:rgba(255,255,255,.9);font-size:13px;font-weight:600}
+.ls-body{padding:14px 16px 16px}
+.ls-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:18px;color:var(--text);margin-bottom:4px}
+.ls-desc{font-size:13px;color:var(--sub);margin-bottom:14px;line-height:1.5}
+.go-live-btn{width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'DM Sans',sans-serif;box-shadow:0 4px 16px rgba(232,68,90,.3);transition:transform .18s}
+.go-live-btn:hover{transform:translateY(-1px)}
+
+.inv-list{padding:0 18px}
+.inv-item{background:var(--white);border-radius:14px;padding:13px;display:flex;align-items:center;gap:12px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.inv-thumb{width:54px;height:54px;border-radius:10px;background:#f3ede5;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:26px}
+.inv-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.inv-price{font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;color:var(--indigo)}
+.inv-stock{display:inline-flex;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;margin-left:8px}
+.s-ok{background:#DCFCE7;color:#16A34A} .s-low{background:#FEF3C7;color:#D97706}
+.edit-btn{font-size:18px;color:var(--sub2);cursor:pointer;padding:4px;margin-left:auto}
+
+/* ── ANALYTICS ── */
+.analytics-hd{padding:20px 18px 10px}
+.analytics-big{font-family:'Nunito',sans-serif;font-weight:900;font-size:28px;color:var(--text);margin-bottom:4px}
+.analytics-sub{font-size:13px;color:var(--sub);line-height:1.5;margin-bottom:14px}
+.period-dd{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--text);background:var(--white);cursor:pointer}
+.acards{padding:10px 18px 20px;display:flex;flex-direction:column;gap:12px}
+.acard{background:var(--white);border-radius:14px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.acard-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.acard-ic{width:42px;height:42px;border-radius:12px;background:#EEF0FF;display:flex;align-items:center;justify-content:center;font-size:20px}
+.ai-orange{background:#FFF7ED} .ai-red{background:#FFF1F2} .ai-green{background:#F0FFF4} .ai-yellow{background:#FEFCE8}
+.trend{font-size:12px;font-weight:700;padding:4px 9px;border-radius:20px;display:flex;align-items:center;gap:3px}
+.t-up{color:#16A34A;background:#DCFCE7} .t-flat{color:var(--sub);background:#F3F4F6}
+.acard-lbl{font-size:13px;color:var(--sub);margin-bottom:4px}
+.acard-val{font-family:'Nunito',sans-serif;font-weight:900;font-size:28px;color:var(--text)}
+
+/* ── PAYOUTS ── */
+.np-wrap{margin:14px 18px 0}
+.np-inner{background:var(--indigo);border-radius:16px;padding:22px 20px 18px;position:relative;overflow:hidden}
+.np-lbl{font-size:11px;font-weight:700;color:rgba(255,255,255,.65);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.np-amt{font-family:'Nunito',sans-serif;font-weight:900;font-size:36px;color:#fff;letter-spacing:-.02em;margin-bottom:14px}
+.np-sched{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.2);color:rgba(255,255,255,.85);font-size:12px;font-weight:600;padding:7px 14px;border-radius:10px}
+.np-bg{position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:82px;opacity:.1;color:#fff;pointer-events:none}
+
+.txn-sec{padding:0 18px}
+.txn-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:var(--text);padding-bottom:10px}
+.txn-grp{background:var(--white);border-radius:14px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.06);margin-bottom:10px}
+.txn-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1.5px dashed var(--border);cursor:pointer;transition:background .12s}
+.txn-row:hover{background:#fafafa}
+.txn-row:last-child{border-bottom:none}
+.txn-ic{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.ti-green{background:#DCFCE7} .ti-orange{background:#FEF3C7}
+.txn-amt{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:var(--text);margin-bottom:2px}
+.txn-meta{font-size:12px;color:var(--sub)}
+.txn-badge{font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;white-space:nowrap}
+.b-settled{color:#16A34A;background:#DCFCE7} .b-processing{color:#D97706;background:#FEF3C7}
+.load-more{width:100%;padding:14px;background:transparent;border:1.5px solid var(--border);border-radius:12px;color:var(--indigo);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.04em;font-family:'DM Sans',sans-serif;margin-bottom:20px}
+
+/* ── PAYOUT DETAIL ── */
+.pd-hero{margin:14px 18px;background:var(--white);border-radius:16px;padding:22px 20px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.pd-settled-badge{display:inline-flex;align-items:center;gap:6px;background:#DCFCE7;color:#16A34A;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;margin-bottom:12px}
+.pd-amt{font-family:'Nunito',sans-serif;font-weight:900;font-size:38px;color:var(--text);letter-spacing:-.02em;margin-bottom:8px}
+.pd-bank{font-size:13px;color:var(--sub);display:flex;align-items:center;justify-content:center;gap:5px}
+.pd-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 18px 12px}
+.pd-meta{background:var(--white);border-radius:12px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.pd-ml{font-size:11px;color:var(--sub);margin-bottom:4px;font-weight:500}
+.pd-mv{font-size:14px;font-weight:700;color:var(--text)}
+.comm-card{margin:0 18px 12px;background:var(--white);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.comm-ic{width:38px;height:38px;border-radius:10px;background:#FFF1F2;display:flex;align-items:center;justify-content:center;font-size:18px}
+.io-hd{display:flex;align-items:center;justify-content:space-between;padding:4px 18px 10px}
+.io-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:17px;color:var(--text)}
+.io-ct{background:var(--bg);color:var(--sub);font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px}
+.oi{margin:0 18px 10px;background:var(--white);border-radius:12px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.oi-inner{padding:14px 14px 14px 18px;border-left:3px solid var(--indigo)}
+.oi-num{font-size:11px;font-weight:700;color:var(--indigo);letter-spacing:.04em;margin-bottom:3px}
+.oi-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px}
+.oi-pr{display:flex;align-items:center;justify-content:space-between}
+.oi-price{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:var(--text)}
+.oi-fee{font-size:12px;color:var(--sub)} .oi-fee span{color:var(--red);font-weight:600}
+
+/* ── PROFILE ── */
+.profile-hero{display:flex;flex-direction:column;align-items:center;padding:28px 18px 20px}
+.profile-av{width:72px;height:72px;border-radius:50%;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:12px}
+.profile-menu{padding:0 18px;display:flex;flex-direction:column;gap:10px;padding-bottom:20px}
+.pm-row{background:var(--white);border-radius:14px;padding:16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.06);transition:background .12s}
+.pm-row:hover{background:#f8f8fe}
+.pm-left{display:flex;align-items:center;gap:10px}
+.pm-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+
+/* ── TOAST ── */
+.toast{position:absolute;bottom:86px;left:50%;transform:translateX(-50%) translateY(12px);background:rgba(0,0,0,.76);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:all .22s;z-index:999;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- STATUS BAR -->
+  <div class="sb">
+    <div class="sb-time">9:41</div>
+    <div style="font-size:12px;color:var(--text)">▮▮▮▮ ≋ 🔋</div>
+  </div>
+
+  <!-- PERSISTENT TOP BAR -->
+  <div class="top-bar" id="main-top-bar">
+    <div class="logo-row">
+      <div class="logo-ic">🛍</div>
+      <div class="logo-txt">KochiLive</div>
+    </div>
+    <div class="top-right">
+      <div class="bell">🔔</div>
+    </div>
+  </div>
+
+  <!-- SUB-BAR (back + title, for inner pages) -->
+  <div class="sub-bar" id="sub-bar" style="display:none">
+    <div class="back-dashed" id="sub-back">←</div>
+    <div class="sub-title" id="sub-title">Page</div>
+    <div class="help-ic">?</div>
+  </div>
+
+  <!-- CONTENT AREA -->
+  <div class="content">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div id="pg-dashboard" class="page active">
+      <div class="seller-card">
+        <div class="seller-logo">🏪</div>
+        <div>
+          <div class="seller-name">Kochi Mart</div>
+          <div class="verified">✅ Verified Seller</div>
+        </div>
+      </div>
+      <div class="qs-label">Quick Stats</div>
+      <div class="indigo-card">
+        <div class="ic-label">TODAY'S SALES</div>
+        <div style="display:flex;align-items:center">
+          <div class="ic-amount">₹12,450</div>
+          <div class="growth-pill">↑ +14%</div>
+        </div>
+        <div class="ic-rupee-bg">₹</div>
+      </div>
+      <div style="height:12px"></div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-icon si-purple">👁</div><div class="stat-lbl">TOTAL VIEWERS</div><div class="stat-num">1.2k</div></div>
+        <div class="stat-card"><div class="stat-icon si-orange">📋</div><div class="stat-lbl">PENDING ORDERS</div><div class="stat-num">8</div></div>
+      </div>
+      <div class="live-soon-card">
+        <div class="ls-banner">
+          <span style="position:relative;z-index:1">🎭</span>
+          <div class="ls-badge-row">
+            <div class="ls-pill"><div class="ls-dot"></div>LIVE SOON</div>
+            <div class="ls-starts">Starts in 45m</div>
+          </div>
+        </div>
+        <div class="ls-body">
+          <div class="ls-title">Onam Special Sale</div>
+          <div class="ls-desc">Exclusive discounts on Kasavu Sarees &amp; Mundus.</div>
+          <button class="go-live-btn" onclick="toast('Starting live stream...')">📡 Go Live Now</button>
+        </div>
+      </div>
+      <div class="sec-hd">
+        <div class="sec-title">Inventory Overview</div>
+        <div class="view-all" onclick="switchTab('inventory')">View All</div>
+      </div>
+      <div class="inv-list">
+        <div class="inv-item">
+          <div class="inv-thumb">🥻</div>
+          <div><div class="inv-name">Kanchipuram Silk Saree</div><div><span class="inv-price">₹8,500</span><span class="inv-stock s-ok">Stock: 12</span></div></div>
+          <div class="edit-btn">✏️</div>
+        </div>
+        <div class="inv-item">
+          <div class="inv-thumb">🩳</div>
+          <div><div class="inv-name">Premium Handloom M...</div><div><span class="inv-price">₹1,200</span><span class="inv-stock s-low">Low Stock: 3</span></div></div>
+          <div class="edit-btn">✏️</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== INVENTORY ===== -->
+    <div id="pg-inventory" class="page">
+      <div class="sec-hd" style="padding-top:18px"><div class="sec-title">All Products</div><div style="font-size:13px;color:var(--indigo);font-weight:700;cursor:pointer" onclick="toast('Add product')">+ Add</div></div>
+      <div class="inv-list">
+        <div class="inv-item"><div class="inv-thumb">🥻</div><div><div class="inv-name">Kanchipuram Silk Saree</div><div><span class="inv-price">₹8,500</span><span class="inv-stock s-ok">Stock: 12</span></div></div><div class="edit-btn">✏️</div></div>
+        <div class="inv-item"><div class="inv-thumb">🩳</div><div><div class="inv-name">Premium Handloom Mundu</div><div><span class="inv-price">₹1,200</span><span class="inv-stock s-low">Low Stock: 3</span></div></div><div class="edit-btn">✏️</div></div>
+        <div class="inv-item"><div class="inv-thumb">👗</div><div><div class="inv-name">Cotton Churidar Set</div><div><span class="inv-price">₹2,400</span><span class="inv-stock s-ok">Stock: 7</span></div></div><div class="edit-btn">✏️</div></div>
+        <div class="inv-item"><div class="inv-thumb">🧣</div><div><div class="inv-name">Silk Dupatta</div><div><span class="inv-price">₹950</span><span class="inv-stock s-ok">Stock: 18</span></div></div><div class="edit-btn">✏️</div></div>
+        <div class="inv-item"><div class="inv-thumb">💍</div><div><div class="inv-name">Temple Jewellery Set</div><div><span class="inv-price">₹3,200</span><span class="inv-stock s-ok">Stock: 5</span></div></div><div class="edit-btn">✏️</div></div>
+        <div class="inv-item"><div class="inv-thumb">🪔</div><div><div class="inv-name">Brass Nilavilakku</div><div><span class="inv-price">₹1,800</span><span class="inv-stock s-low">Low Stock: 2</span></div></div><div class="edit-btn">✏️</div></div>
+      </div>
+    </div>
+
+    <!-- ===== ANALYTICS ===== -->
+    <div id="pg-analytics" class="page">
+      <div class="analytics-hd">
+        <div class="analytics-big">Overview</div>
+        <div class="analytics-sub">Track your store's performance and live stream engagement.</div>
+        <div class="period-dd">Last 7 Days ⌄</div>
+      </div>
+      <div class="acards">
+        <div class="acard"><div class="acard-top"><div class="acard-ic">💳</div><div class="trend t-up">↗ +14.5%</div></div><div class="acard-lbl">Total Revenue</div><div class="acard-val">₹1,24,500</div></div>
+        <div class="acard"><div class="acard-top"><div class="acard-ic ai-orange">🛍</div><div class="trend t-up">↗ +8.2%</div></div><div class="acard-lbl">Total Orders</div><div class="acard-val">342</div></div>
+        <div class="acard"><div class="acard-top"><div class="acard-ic ai-red">📋</div><div class="trend t-flat">→ +0.0%</div></div><div class="acard-lbl">Avg. Order Value</div><div class="acard-val">₹364</div></div>
+        <div class="acard"><div class="acard-top"><div class="acard-ic ai-green">📺</div><div class="trend t-up">↗ +22.1%</div></div><div class="acard-lbl">Total Live Viewers</div><div class="acard-val">8,240</div></div>
+        <div class="acard"><div class="acard-top"><div class="acard-ic ai-yellow">⭐</div><div class="trend t-up">↗ +1.3%</div></div><div class="acard-lbl">Store Rating</div><div class="acard-val">4.8</div></div>
+      </div>
+    </div>
+
+    <!-- ===== PAYOUT HISTORY ===== -->
+    <div id="pg-payouts" class="page">
+      <div class="np-wrap">
+        <div class="np-inner">
+          <div class="np-lbl">ESTIMATED NEXT PAYOUT</div>
+          <div class="np-amt">₹8,450</div>
+          <div class="np-sched">📅 Scheduled for Aug 25, 2024</div>
+          <div class="np-bg">₹</div>
+        </div>
+      </div>
+      <div class="sec-hd"><div class="sec-title">Past Transactions</div></div>
+      <div class="txn-sec">
+        <div class="txn-grp">
+          <div class="txn-row" onclick="openPayoutDetail()"><div class="txn-ic ti-green">✅</div><div style="flex:1"><div class="txn-amt">₹12,200</div><div class="txn-meta">Aug 18, 2024 • TXN-892A4</div></div><div class="txn-badge b-settled">Settled</div></div>
+          <div class="txn-row" onclick="openPayoutDetail()"><div class="txn-ic ti-green">✅</div><div style="flex:1"><div class="txn-amt">₹5,150</div><div class="txn-meta">Aug 11, 2024 • TXN-771B9</div></div><div class="txn-badge b-settled">Settled</div></div>
+        </div>
+        <div class="txn-grp">
+          <div class="txn-row"><div class="txn-ic ti-orange">🕐</div><div style="flex:1"><div class="txn-amt">₹3,800</div><div class="txn-meta">Aug 04, 2024 • TXN-660C2</div></div><div class="txn-badge b-processing">Processing</div></div>
+        </div>
+        <button class="load-more" onclick="toast('Loading more...')">LOAD MORE PAYOUTS</button>
+      </div>
+    </div>
+
+    <!-- ===== PAYOUT DETAIL ===== -->
+    <div id="pg-payout-detail" class="page">
+      <div class="pd-hero">
+        <div class="pd-settled-badge">✅ SETTLED</div>
+        <div class="pd-amt">₹12,200.00</div>
+        <div class="pd-bank">🏦 Transferred to HDFC Bank **** 4589</div>
+      </div>
+      <div class="pd-meta-grid">
+        <div class="pd-meta"><div class="pd-ml">Transaction ID</div><div class="pd-mv">TXN-98475-K...</div></div>
+        <div class="pd-meta"><div class="pd-ml">Settlement Date</div><div class="pd-mv">24 Oct 2023</div></div>
+      </div>
+      <div class="comm-card">
+        <div><div style="font-size:13px;color:var(--sub)">Total Commission Deducted</div><div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:var(--red)">– ₹650.00</div></div>
+        <div class="comm-ic">📋</div>
+      </div>
+      <div class="io-hd"><div class="io-title">Included Orders</div><div class="io-ct">3 Items</div></div>
+      <div class="oi"><div class="oi-inner"><div class="oi-num">ORDER #KM-8832</div><div class="oi-pr"><div class="oi-name">Kanchipuram Silk Saree</div><div class="oi-price">₹6,500</div></div><div class="oi-fee">↘ Platform Fee (5%) <span>– ₹325</span></div></div></div>
+      <div class="oi"><div class="oi-inner"><div class="oi-num">ORDER #KM-8835</div><div class="oi-pr"><div class="oi-name">Handloom Cotton Set</div><div class="oi-price">₹4,200</div></div><div class="oi-fee">↘ Platform Fee (5%) <span>– ₹210</span></div></div></div>
+      <div class="oi" style="margin-bottom:20px"><div class="oi-inner"><div class="oi-num">ORDER #KM-8841</div><div class="oi-pr"><div class="oi-name">Silk Dupatta × 3</div><div class="oi-price">₹2,850</div></div><div class="oi-fee">↘ Platform Fee (5%) <span>– ₹115</span></div></div></div>
+    </div>
+
+    <!-- ===== PROFILE ===== -->
+    <div id="pg-profile" class="page">
+      <div class="profile-hero">
+        <div class="profile-av">🏪</div>
+        <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:20px;color:var(--text)">Kochi Mart</div>
+        <div style="color:#22C55E;font-size:13px;font-weight:600;margin-top:4px">✅ Verified Seller</div>
+        <div style="color:var(--sub);font-size:13px;margin-top:4px">📍 MG Road, Kochi, Kerala</div>
+      </div>
+      <div class="profile-menu">
+        <div class="pm-row" onclick="openPayouts()"><div class="pm-left"><div class="pm-ic" style="background:#EEF0FF">💳</div><div style="font-size:14px;font-weight:600;color:var(--text)">Payout History</div></div><span style="color:var(--sub)">›</span></div>
+        <div class="pm-row" onclick="switchTab('analytics')"><div class="pm-left"><div class="pm-ic" style="background:#EEF0FF">📊</div><div style="font-size:14px;font-weight:600;color:var(--text)">Sales Analytics</div></div><span style="color:var(--sub)">›</span></div>
+        <div class="pm-row" onclick="toast('Bank settings...')"><div class="pm-left"><div class="pm-ic" style="background:#F0FFF4">🏦</div><div style="font-size:14px;font-weight:600;color:var(--text)">Bank Account</div></div><span style="color:var(--sub)">›</span></div>
+        <div class="pm-row" onclick="toast('GST settings...')"><div class="pm-left"><div class="pm-ic" style="background:#FFF7ED">📄</div><div style="font-size:14px;font-weight:600;color:var(--text)">GST & Tax Info</div></div><span style="color:var(--sub)">›</span></div>
+        <div class="pm-row" onclick="toast('Logged out')"><div class="pm-left"><div class="pm-ic" style="background:#FFF1F2">🚪</div><div style="font-size:14px;font-weight:600;color:var(--red)">Logout</div></div><span style="color:var(--sub)">›</span></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- PERSISTENT BOTTOM NAV -->
+  <div class="bottom-nav">
+    <div class="bnav active" id="bnav-dashboard" onclick="switchTab('dashboard')">
+      <div class="bnav-ic">⊞</div><div class="bnav-lbl">Dashboard</div>
+    </div>
+    <div class="bnav" id="bnav-inventory" onclick="switchTab('inventory')">
+      <div class="bnav-ic">📦</div><div class="bnav-lbl">Inventory</div>
+    </div>
+    <div class="bnav" onclick="toast('Live stream starting...')">
+      <div class="go-live-fab">📡</div><div class="bnav-lbl" style="color:var(--red)">Go Live</div>
+    </div>
+    <div class="bnav" id="bnav-analytics" onclick="switchTab('analytics')">
+      <div class="bnav-ic">📊</div><div class="bnav-lbl">Stats</div>
+    </div>
+    <div class="bnav" id="bnav-profile" onclick="switchTab('profile')">
+      <div class="bnav-ic">👤</div><div class="bnav-lbl">Profile</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<!-- Quick nav pills -->
+<div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;justify-content:center;max-width:420px">
+  <button onclick="switchTab('dashboard')" style="background:var(--indigo);color:#fff;border:none;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">Dashboard</button>
+  <button onclick="switchTab('analytics')" style="background:var(--indigo);color:#fff;border:none;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">Analytics</button>
+  <button onclick="openPayouts()" style="background:var(--indigo);color:#fff;border:none;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">Payouts</button>
+  <button onclick="openPayoutDetail()" style="background:var(--indigo);color:#fff;border:none;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">Payout Detail</button>
+  <button onclick="switchTab('inventory')" style="background:var(--indigo);color:#fff;border:none;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">Inventory</button>
+  <button onclick="switchTab('profile')" style="background:var(--indigo);color:#fff;border:none;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">Profile</button>
+</div>
+
+<style>
+  :root{--indigo:#3D35C8;--red:#E8445A}
+</style>
+
+<script>
+// Pages that are "inner" (show sub-bar with back, hide main top bar)
+const innerPages = {
+  'payout-detail': { title: 'Payout Details', back: 'payouts' },
+  'payouts':       { title: 'Payout History', back: 'profile' },
+};
+
+// Tab → nav item mapping
+const tabNavMap = {
+  dashboard: 'bnav-dashboard',
+  inventory: 'bnav-inventory',
+  analytics: 'bnav-analytics',
+  profile:   'bnav-profile',
+};
+
+let currentPage = 'dashboard';
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('pg-' + id);
+  if (el) el.classList.add('active');
+
+  const mainBar = document.getElementById('main-top-bar');
+  const subBar  = document.getElementById('sub-bar');
+
+  if (innerPages[id]) {
+    mainBar.style.display = 'none';
+    subBar.style.display  = 'flex';
+    document.getElementById('sub-title').textContent = innerPages[id].title;
+    document.getElementById('sub-back').onclick = () => {
+      showPage(innerPages[id].back);
+    };
+  } else {
+    mainBar.style.display = 'flex';
+    subBar.style.display  = 'none';
+  }
+  currentPage = id;
+}
+
+function switchTab(tab) {
+  // update bottom nav active state
+  document.querySelectorAll('.bnav').forEach(b => b.classList.remove('active'));
+  const navEl = document.getElementById('bnav-' + tab);
+  if (navEl) navEl.classList.add('active');
+  showPage(tab);
+}
+
+function openPayouts() {
+  showPage('payouts');
+}
+
+function openPayoutDetail() {
+  showPage('payout-detail');
+}
+
+function toast(m) {
+  const t = document.getElementById('toast');
+  t.textContent = m; t.classList.add('show');
+  clearTimeout(window._tt);
+  window._tt = setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>
